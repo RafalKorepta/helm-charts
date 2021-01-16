@@ -209,3 +209,10 @@ storage:
     labels: {}
     # Additional annotations to apply to the created PersistentVolumeClaims.
     annotations: {}
+
+loadBalancer:
+  enabled: false
+  parentZone: my-project.gcp.domain.com.
+  annotations:
+    cloud.google.com/load-balancer-type: "Internal"
+  port: 9092

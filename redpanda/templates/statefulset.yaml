@@ -69,7 +69,11 @@ spec:
               fi;
               rpk --config $CONFIG config set redpanda.advertised_rpc_api.address $SERVICE_NAME;
               rpk --config $CONFIG config set redpanda.advertised_rpc_api.port {{ .Values.config.redpanda.rpc_server.port }};
+              {{- if .Values.loadBalancer.enabled }}
+              rpk --config $CONFIG config set redpanda.advertised_kafka_api.address {{ template "redpanda.name" . }}-$NODE_ID.{{.Values.loadBalancer.parentZone}}
+              {{- else }}
               rpk --config $CONFIG config set redpanda.advertised_kafka_api.address $SERVICE_NAME;
+              {{- end }}
               rpk --config $CONFIG config set redpanda.advertised_kafka_api.port  {{ .Values.config.redpanda.kafka_api.port }};
           volumeMounts:
             - name: {{ template "redpanda.fullname" . }}
