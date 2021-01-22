@@ -56,7 +56,7 @@ spec:
       initContainers:
         - name: {{ template "redpanda.name" . }}-configurator
           image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
-          command: ["/bin/sh", "-c"]
+          command: ["/bin/bash", "-c"]
           args:
             - >
               CONFIG=/etc/redpanda/redpanda.yaml;
@@ -70,11 +70,12 @@ spec:
               rpk --config $CONFIG config set redpanda.advertised_rpc_api.address $SERVICE_NAME;
               rpk --config $CONFIG config set redpanda.advertised_rpc_api.port {{ .Values.config.redpanda.rpc_server.port }};
               {{- if .Values.loadBalancer.enabled }}
-              rpk --config $CONFIG config set redpanda.advertised_kafka_api.address {{ template "redpanda.name" . }}-$NODE_ID.{{.Values.loadBalancer.parentZone}}
+              ADVERTISED_KAFKA_API='[{"address": "'"$SERVICE_NAME"'", "port": {{.Values.config.redpanda.kafka_api.port}}, "name":"internal"},{"address": "{{ template "redpanda.fullname" . }}-'"$NODE_ID"'.{{.Values.loadBalancer.parentZone}}", "port": {{.Values.loadBalancer.port}}, "name":"external"}]';
+              rpk --config "$CONFIG" config set redpanda.advertised_kafka_api "$ADVERTISED_KAFKA_API" --format=json;
               {{- else }}
               rpk --config $CONFIG config set redpanda.advertised_kafka_api.address $SERVICE_NAME;
-              {{- end }}
               rpk --config $CONFIG config set redpanda.advertised_kafka_api.port  {{ .Values.config.redpanda.kafka_api.port }};
+              {{- end }}
           volumeMounts:
             - name: {{ template "redpanda.fullname" . }}
               mountPath: /tmp/base-config 

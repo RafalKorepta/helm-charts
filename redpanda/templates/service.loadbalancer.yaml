@@ -24,7 +24,7 @@ limitations under the License.
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ template "redpanda.name" $envAll }}-{{ . }}
+  name: {{ template "redpanda.fullname" $envAll }}-{{ . }}
   namespace: {{ $release.Namespace | quote }}
   labels:
     helm.sh/chart: {{ template "redpanda.chart" $envAll }}
@@ -36,7 +36,7 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
   annotations:
-    external-dns.alpha.kubernetes.io/hostname: redpanda-{{ . }}.{{$lb.parentZone}}
+    external-dns.alpha.kubernetes.io/hostname: {{ template "redpanda.fullname" $envAll }}-{{ . }}.{{$lb.parentZone}}
     {{- range $key, $value := $lb.annotations}}
     {{$key}}: {{$value}}
     {{- end }}

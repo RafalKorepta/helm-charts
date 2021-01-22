@@ -32,3 +32,9 @@ To get the api status:
   kubectl -n {{ .Release.Namespace }} run -ti --rm --restart=Never \
     --image {{ .Values.image.repository }}:{{ .Values.image.tag }} \
     rpk -- --brokers={{ include "redpanda.fullname" . }}-bootstrap:{{ .Values.config.redpanda.kafka_api.port }} api status
+
+{{- if .Values.loadBalancer.enabled }}
+Or from outside the cluster:
+
+  rpk --brokers={{ include "redpanda.fullname" . }}-0.{{ .Values.loadBalancer.parentZone }} api status
+{{- end }}
